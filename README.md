@@ -1,33 +1,105 @@
 # PYMEmkt | Growth Systems — Sitio web
 
-Sitio de una sola página, diseñado como herramienta comercial: su KPI principal son las **solicitudes de diagnóstico**.
+Sitio de una sola página diseñado como herramienta comercial. Su indicador principal son las **solicitudes de diagnóstico**.
 
-**Stack:** Next.js 14 (App Router) · TypeScript · Tailwind CSS · Framer Motion · Lucide Icons · Geist (fuente auto-hospedada).
+| Pieza | Versión |
+| --- | --- |
+| Node.js | 24.x (LTS) — fijado en `package.json` → `engines` y `.nvmrc` |
+| Next.js | 16.4.1 (App Router) |
+| React | 19.3.1 |
+| TypeScript | 5.9.3 |
+| Tailwind CSS | 4.3.3 |
+| Framer Motion | 14.3.0 |
+| Lucide | 1.57.0 |
+| Nodemailer | 10.1.1 (envío del formulario por SMTP) |
+
+Historial de versiones y cambios: [CHANGELOG.md](CHANGELOG.md). Estado de publicación, variables y pendientes: [PUBLICACION.md](PUBLICACION.md).
 
 ---
-
-## Requisitos
-
-- Node.js 18.18 o superior (recomendado 20 LTS)
-- npm 9+
 
 ## Instalación
 
 ```bash
-npm install
-cp .env.example .env.local   # completa los valores que tengas
-npm run dev                  # http://localhost:3000
+nvm use            # usa Node 24 (lee .nvmrc)
+npm ci             # instala exactamente las versiones del package-lock.json
+cp .env.example .env.local   # solo si vas a probar el envío del formulario en local
+npm run dev        # http://localhost:3000
 ```
 
-## Scripts
+## Comandos
 
 | Comando | Qué hace |
 | --- | --- |
 | `npm run dev` | Servidor de desarrollo |
-| `npm run build` | Compilación de producción (incluye verificación de tipos y lint) |
-| `npm start` | Sirve la compilación de producción |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript sin emitir archivos |
+| `npm run build` | Verifica la configuración (`scripts/check-env.mjs`) y compila para producción |
+| `npm start` | Sirve la compilación |
+| `npm run typecheck` | Revisión de tipos de TypeScript |
+| `npm run lint` | ESLint (configuración oficial de Next.js) |
+| `npm test` | Pruebas unitarias: validación del formulario y evaluación |
+| `npm run test:api` | Pruebas de la API contra un servidor en marcha (`BASE_URL=...`) |
+| `npm run check` | Tipos + lint + pruebas + compilación |
+
+---
+
+## Entornos
+
+| Entorno | `NEXT_PUBLIC_APP_ENV` | Indexación | URL usada en enlaces y metadatos |
+| --- | --- | --- | --- |
+| Pruebas | `staging` (o sin definir) | Bloqueada (`noindex`, robots `Disallow: /`, sitemap vacío) | La URL de Vercel del despliegue |
+| Producción | `production` | Permitida | `NEXT_PUBLIC_SITE_URL` (`https://pymemkt.com.mx`) |
+
+`npm run build` revisa la configuración antes de compilar. En pruebas solo muestra avisos. En **producción detiene la compilación** si falta la URL, el WhatsApp, el correo, un canal de recepción del formulario o los datos del aviso de privacidad, o si alguna credencial lleva el prefijo `NEXT_PUBLIC_`.
+
+Archivos de entorno:
+
+- `.env.production` y `.env.development`: valores **públicos** compartidos (WhatsApp, correo). Se suben al repositorio.
+- Variables por entorno y **secretas**: en Vercel → *Settings → Environment Variables*. Nunca en el repositorio.
+- `.env.example`: referencia completa comentada.
+
+---
+
+## Recepción del formulario
+
+La ruta `app/api/lead/route.ts` valida la solicitud y la entrega por uno de estos canales (`lib/server/deliver.ts`):
+
+1. **SMTP** (recomendado): el buzón contacto@pymemkt.com.mx en Titan Email se envía a sí mismo cada solicitud. No requiere cambios de DNS.
+2. **Resend**: alternativa por API; requiere verificar el dominio con registros DNS.
+3. **Webhook** opcional: copia a Google Sheets, Make, Zapier o un CRM.
+
+Reglas:
+
+- El servidor responde `delivered: true` **solo** si un canal confirma la entrega (el servidor SMTP acepta el destinatario o la API o el webhook responden 2xx).
+- Sin canal configurado responde 503; si el canal falla, 502. En ambos casos el formulario muestra «No pudimos enviar tu solicitud», conserva los datos y ofrece enviarlos por WhatsApp con la información ya escrita.
+- La conversión (`form_submit` → `Lead`) se registra solo con entrega confirmada. Un fallo registra `form_delivery_failed`.
+- Elegir «Llamada» o «Videollamada» es una **preferencia de contacto**, no una cita. El formulario y el correo lo dicen explícitamente.
+
+Protección:
+
+- Validación estricta del cuerpo: solo JSON (415), máximo 8 KB (413), objeto con tipos correctos (400 o 422). Nunca lanza un error sin controlar.
+- Límite de 5 envíos por IP cada 10 minutos. Con Upstash Redis se comparte entre instancias; sin él es por instancia. Complemento recomendado: regla de **Vercel Firewall** (ver PUBLICACION.md).
+- Campo trampa (honeypot), tiempo mínimo de llenado, verificación de origen y **Cloudflare Turnstile** opcional.
+- Registros sin datos personales: solo identificador de solicitud, resultado y códigos técnicos.
+
+---
+
+## Privacidad y medición
+
+- `/aviso-de-privacidad` se construye con los datos de `lib/privacy.ts`. Mientras falte un dato, la página muestra «Borrador», no se indexa y la compilación de producción se detiene.
+- GA4 y Meta Pixel cargan **solo con consentimiento**. Si hay identificadores configurados aparece un aviso de cookies con Aceptar, Rechazar y Configurar. La elección se cambia desde «Preferencias de cookies» en el pie.
+
+### Eventos
+
+| Evento (GA4) | Meta Pixel | Cuándo |
+| --- | --- | --- |
+| `form_submit` | `Lead` | Solicitud entregada (confirmada por el servidor) |
+| `form_delivery_failed` | personalizado | El envío no se pudo entregar |
+| `contact_preference` | personalizado | Preferencia declarada: WhatsApp, Llamada o Videollamada |
+| `diagnostic_complete` | `CompleteRegistration` | Terminó la evaluación |
+| `diagnostic_request` | personalizado | Pidió diagnóstico desde su resultado (`channel`: whatsapp o form) |
+| `whatsapp_click` | `Contact` | Abrió WhatsApp (`location` indica el botón) |
+| `diagnostic_start`, `diagnostic_step`, `form_error`, `cta_click`, `problem_open`, `method_stage_open`, `solution_category`, `a3_demo_step` | personalizado | Interacción |
+
+Marca `form_submit` como **evento clave** en GA4 y optimiza campañas de Meta por **Lead**.
 
 ---
 
@@ -35,154 +107,34 @@ npm run dev                  # http://localhost:3000
 
 ```
 app/
-  layout.tsx            Metadatos SEO, Open Graph, JSON-LD, fuentes, analítica
-  page.tsx              Orden de secciones
-  api/lead/route.ts     Recepción y reenvío de solicitudes (validación, honeypot, límite por IP)
-  opengraph-image.tsx   Imagen OG generada (1200×630)
-  sitemap.ts · robots.ts · icon.svg
+  layout.tsx · page.tsx · globals.css (Tailwind 4: tema y utilidades)
+  api/lead/route.ts         Recepción de solicitudes
+  aviso-de-privacidad/      Aviso de privacidad
+  opengraph-image.tsx · sitemap.ts · robots.ts · favicon.ico · icon.png · apple-icon.png
 components/
-  sections/             Hero, SystemDiagram, Problems, Diagnostic, Methodology, Solutions, Evidence, FinalCTA
-  ui/                   Button, Dialog, Reveal, SectionHeader, Logo
-  Header · Footer · FloatingCTA · ContactForm · Analytics · Providers · DiagnosticContext
+  sections/                 Hero, SystemDiagram, Problems, Diagnostic, Methodology, A3Demo, Solutions, Evidence, FinalCTA
+  ContactForm · ConsentBanner · Analytics · Turnstile · Header · Footer · FloatingCTA · ui/
 lib/
-  config.ts             Configuración central (lee variables de entorno)
-  content.ts            Textos de problemas, metodología, soluciones y casos
-  diagnostic.ts         Preguntas, ponderación y resultado de la evaluación
-  lead.ts               Validación compartida cliente/servidor del formulario
-  analytics.ts          Eventos GA4 + Meta Pixel
-  whatsapp.ts           Enlaces de WhatsApp
+  config.ts                 Configuración y entornos
+  content.ts · diagnostic.ts · a3demo.ts   Contenido editable
+  lead.ts                   Validación compartida del formulario
+  privacy.ts                Datos del aviso de privacidad (pendientes)
+  consent.ts · analytics.ts · whatsapp.ts
+  server/                   parse-lead, deliver, rate-limit, turnstile (solo servidor)
+scripts/check-env.mjs       Verificación previa a la compilación
+tests/                      Pruebas unitarias y de API
+public/brand/               Logotipo oficial
 ```
 
-Todo el contenido editable vive en `lib/content.ts` y `lib/diagnostic.ts`; no hace falta tocar componentes para cambiar textos.
+Todo el texto editable vive en `lib/content.ts`, `lib/diagnostic.ts` y `lib/a3demo.ts`.
 
----
+## Evaluación, WhatsApp y demostración
 
-## Variables de entorno
-
-Ver `.env.example`. Ningún dato de contacto está escrito en el código.
-
-| Variable | Efecto |
-| --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | URL canónica, OG, sitemap y enlace al compartir resultados |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Activa botones de WhatsApp (flotante, CTA final, éxito del formulario). Sin número se ocultan |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Correo en el pie y respaldo del formulario |
-| `NEXT_PUBLIC_GA4_ID` | Carga GA4 |
-| `NEXT_PUBLIC_META_PIXEL_ID` | Carga Meta Pixel |
-| `LEAD_WEBHOOK_URL` | Destino de las solicitudes del formulario (JSON por POST) |
-| `LEAD_WEBHOOK_SECRET` | Se envía como `X-Webhook-Secret` |
-
-> ⚠️ **Antes de publicar, configura `LEAD_WEBHOOK_URL` y/o `NEXT_PUBLIC_WHATSAPP_NUMBER`.** Sin webhook, el formulario valida y responde, pero pide al usuario terminar el envío por WhatsApp o correo; si no hay ninguno de los dos configurado, la solicitud no llega a ningún lado.
-
-### Formato del webhook
-
-```json
-{
-  "source": "pymemkt-web",
-  "createdAt": "2026-10-14T21:00:00.000Z",
-  "name": "…", "company": "…", "phone": "+525512345678", "email": null,
-  "challenge": "Recibo mensajes, pero pocas ventas",
-  "preference": "Videollamada",
-  "message": null,
-  "context": "Evaluación: Conversión",
-  "diagnosticArea": "Conversión"
-}
-```
-
-Funciona directo con un escenario de Make/Zapier/n8n, o con un Google Apps Script que escriba en una hoja de cálculo.
-
----
-
-## Identidad visual
-
-- **Logotipo oficial** (versión para fondo oscuro) en `public/brand/`:
-  - `logo-light.png` — PYMEmkt (encabezado y menú)
-  - `lockup-light.png` — PYMEmkt + GROWTH SYSTEMS (pie de página e imagen para compartir)
-- **Favicon e íconos** en `app/`: `favicon.ico` (16/32/48), `icon.png` (192), `apple-icon.png` (180). Next.js los publica automáticamente.
-- Se usan desde `components/ui/Logo.tsx`. Al recibir los vectoriales (SVG) del diseñador, reemplaza los archivos conservando los nombres, o cambia las rutas en ese componente.
-- **Paleta** (guía de identidad): Grafito `#0B0F19`, Azul principal `#2563EB`, Azul luminoso `#60A5FA`, Gris claro `#F5F7FA`, Blanco `#FFFFFF`. Definida en `tailwind.config.ts` (`ink`, `electric`, `mist`).
-- **Tipografía del sitio:** Geist (auto-hospedada). Si la guía define otra familia para textos, se cambia en `app/layout.tsx`.
-
----
-
-## Evaluación interactiva
-
-- 5 preguntas, una por pantalla, con barra de progreso, regreso y avance. En móvil la tarjeta vuelve a la vista en cada pregunta.
-- Cada opción suma pesos a cuatro áreas: **Atracción, Conversión, Confianza, Dirección** (`lib/diagnostic.ts`). Empates se resuelven con el desafío declarado en la pregunta 5.
-- El resultado muestra el área principal y la secundaria, el peso relativo de las señales, **por qué se obtuvo** (cuántas respuestas apuntan a esa área y cuáles pesaron más), qué se revisaría primero y la aclaración de que es una **evaluación preliminar**.
-- **«Solicitar diagnóstico por WhatsApp»** abre WhatsApp con un mensaje que incluye el resultado y las cinco respuestas. Si no hay número configurado, el botón lleva al formulario.
-- «Prefiero dejar mis datos» lleva al formulario con el contexto precargado; «Compartir resultado» abre WhatsApp para enviarlo a cualquier contacto.
-
-## WhatsApp
-
-- Número en `NEXT_PUBLIC_WHATSAPP_NUMBER` (52 + 10 dígitos). Con él se activan: enlace directo en el hero y en la evaluación («sin cuestionario»), botón del resultado, botón flotante, barra móvil, CTA final y continuación del formulario.
-- Mensajes prellenados: `lib/whatsapp.ts` (contacto directo) y `resultRequestText` en `lib/diagnostic.ts` (resultado).
-- `NEXT_PUBLIC_DEMO_MODE=true` es solo para vistas previas sin número: los botones abren WhatsApp con el mensaje para revisarlo, sin destinatario. En producción déjalo vacío.
-
-## Demostración Growth A3
-
-`components/sections/A3Demo.tsx` (datos en `lib/a3demo.ts`), dentro de la sección Metodología. Recorre las 6 etapas con un **caso hipotético** («Distribuidora Norte», empresa ficticia): línea base, árbol de causas, matriz impacto/esfuerzo, sprint de 10 días, indicadores con línea base y meta (sin resultados) y reglas de decisión. Está marcada como demostración y con datos ficticios en tres lugares.
-
-## Analítica
-
-`lib/analytics.ts` envía cada evento a GA4 (`gtag('event', …)`) y a Meta Pixel (evento estándar cuando aplica, `trackCustom` en los demás).
-
-| Evento | Meta Pixel |
-| --- | --- |
-| `diagnostic_start`, `diagnostic_step` | custom |
-| `diagnostic_complete` | `CompleteRegistration` |
-| `form_submit` | `Lead` |
-| `diagnostic_request` (botón del resultado; parámetro `channel`: whatsapp o form) | custom |
-| `whatsapp_click` | `Contact` |
-| `meeting_request` (llamada o videollamada) | `Schedule` |
-| `form_error`, `cta_click`, `problem_open`, `method_stage_open`, `solution_category`, `a3_demo_step` | custom |
-
-`whatsapp_click` lleva el parámetro `location` (hero_direct, diagnostic_intro_direct, diagnostic_result, diagnostic_share, floating, mobile_bar, final_cta, form_success) para saber desde dónde se contacta.
-
-En GA4, marca `form_submit` como **evento clave** (es la solicitud real).
-
-## Agregar casos de implementación
-
-La sección **Evidencia** muestra el formato de caso mientras `CASES` (en `lib/content.ts`) esté vacío. Al agregar un caso real, la sección cambia automáticamente a tarjetas con problema, causas, solución, indicadores (antes → después) y aprendizajes. Publica solo datos verificables y con autorización del cliente.
-
-```ts
-export const CASES: CaseStudy[] = [
-  {
-    id: "empresa-x",
-    client: "Empresa X",
-    industry: "Servicios industriales",
-    period: "Ene–Mar 2027",
-    problem: "…",
-    causes: ["…"],
-    solution: ["…"],
-    indicators: [{ label: "Tiempo de primera respuesta", before: "…", after: "…", note: "Medido en WhatsApp Business" }],
-    learnings: "…",
-  },
-];
-```
-
----
+- **Evaluación:** 5 preguntas que se clasifican en Atracción, Conversión, Confianza y Dirección. El resultado explica por qué se obtuvo y se presenta como preliminar.
+- **WhatsApp:** `NEXT_PUBLIC_WHATSAPP_NUMBER=525579270123`. Hay enlace directo en el hero, en la evaluación, en el botón flotante, en la barra móvil y en el cierre. El resultado abre WhatsApp con el área y las cinco respuestas, y el formulario lo ofrece como alternativa si el envío falla.
+- **Growth A3:** demostración con una empresa ficticia, identificada como tal en tres lugares.
+- **Casos reales:** agrégalos en `CASES` (`lib/content.ts`) solo con datos verificables y autorización del cliente.
 
 ## Accesibilidad y rendimiento
 
-- Estructura semántica, enlace «Saltar al contenido», foco visible, `aria-expanded` / `aria-pressed` / roles de pestañas y diálogo con trampa de foco y cierre con Escape.
-- Contraste AA en textos funcionales sobre fondos oscuros y claros.
-- `prefers-reduced-motion`: Framer Motion usa `reducedMotion="user"`, el diagrama del hero detiene pulsos y ciclos, y el CSS anula animaciones y scroll suave.
-- Fuentes auto-hospedadas (sin solicitudes a Google Fonts), página estática, ~152 kB de JS en la primera carga.
-- Los scripts de analítica solo se cargan si sus IDs existen, con `afterInteractive`.
-
-## Despliegue en Vercel
-
-1. Sube el proyecto a un repositorio de GitHub.
-2. En Vercel: **Add New → Project**, importa el repositorio (detecta Next.js automáticamente).
-3. En **Settings → Environment Variables** agrega las variables de `.env.example` (al menos `NEXT_PUBLIC_SITE_URL` y `LEAD_WEBHOOK_URL` o `NEXT_PUBLIC_WHATSAPP_NUMBER`).
-4. **Deploy**. Después conecta tu dominio en **Settings → Domains** y actualiza `NEXT_PUBLIC_SITE_URL` con él (redeploy).
-
-Con la CLI: `npm i -g vercel && vercel` y luego `vercel --prod`.
-
-## Pendientes antes de publicar
-
-- [ ] Archivos vectoriales (SVG) del logo e ícono, para máxima nitidez.
-- [ ] Número de WhatsApp, correo y webhook de solicitudes.
-- [ ] IDs de GA4 y Meta Pixel.
-- [ ] Aviso de privacidad (requerido por la LFPDPPP al recabar datos personales) y su enlace junto a la casilla de autorización del formulario.
-- [ ] Casos reales en `lib/content.ts` cuando estén autorizados.
+Estructura semántica, foco visible, áreas táctiles de 44 px, diálogos con trampa de foco y `prefers-reduced-motion` respetado: el diagrama del hero se detiene sin errores de hidratación. La página principal es estática, las fuentes son locales y no hay scripts de terceros sin consentimiento.

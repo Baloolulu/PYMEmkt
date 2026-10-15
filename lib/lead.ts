@@ -67,6 +67,8 @@ export function leadSummary(d: LeadInput) {
     "Hola, PYMEmkt. Quiero solicitar un diagnóstico.",
     `Nombre: ${d.name}`,
     `Empresa: ${d.company}`,
+    `Teléfono: ${d.phone}`,
+    d.email ? `Correo: ${d.email}` : null,
     `Desafío: ${d.challenge}`,
     d.diagnosticArea ? `Resultado de la evaluación: ${d.diagnosticArea}` : null,
     `Prefiero que me contacten por: ${d.preference}`,

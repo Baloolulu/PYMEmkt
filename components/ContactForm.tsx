@@ -182,7 +182,7 @@ export function ContactForm() {
         }),
       });
     } catch {
-      fail("Hubo un problema de conexión y tu solicitud no se envió.", "network");
+      fail("Hubo un problema de conexión.", "network");
       return;
     }
     const json = (await res.json().catch(() => ({}))) as {
@@ -209,7 +209,7 @@ export function ContactForm() {
       window.setTimeout(() => summaryRef.current?.focus(), 30);
       return;
     }
-    fail(json.error ?? "No pudimos enviar tu solicitud.", json.code ?? `http_${res.status}`);
+    fail(json.error ?? "", json.code ?? `http_${res.status}`);
   };
 
   const wa = whatsappLink(leadSummary(payload()));
@@ -481,7 +481,10 @@ export function ContactForm() {
               >
                 <p className="flex items-start gap-2 font-medium">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                  {serverMsg || "No pudimos enviar tu solicitud."} No se registró ningún envío.
+                  <span>
+                    No pudimos enviar tu solicitud. {serverMsg && serverMsg !== "No pudimos enviar tu solicitud." ? `${serverMsg} ` : ""}
+                    No se registró ningún envío.
+                  </span>
                 </p>
                 <p className="mt-2 leading-relaxed text-amber-900/80">
                   Tus datos siguen en el formulario.{" "}

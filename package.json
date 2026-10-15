@@ -13,9 +13,10 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"tests/**/*.test.mjs\"",
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
-    "prebuild": "node scripts/check-env.mjs"
+    "prebuild": "node scripts/check-env.mjs",
+    "test:api": "node --test tests/api.e2e.mjs"
   },
   "dependencies": {
     "framer-motion": "14.3.0",
