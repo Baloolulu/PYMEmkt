@@ -51,7 +51,7 @@ export function Dialog({ open, onClose, labelledBy, children }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
+          className="fixed inset-0 z-60 flex items-end justify-center p-0 sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -62,7 +62,7 @@ export function Dialog({ open, onClose, labelledBy, children }: Props) {
             aria-label="Cerrar"
             tabIndex={-1}
             onClick={onClose}
-            className="absolute inset-0 cursor-default bg-ink/60 backdrop-blur-sm"
+            className="absolute inset-0 cursor-default bg-ink/60 backdrop-blur-xs"
           />
           <motion.div
             ref={panel}
@@ -74,7 +74,7 @@ export function Dialog({ open, onClose, labelledBy, children }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative max-h-[90vh] w-full overflow-y-auto rounded-t-[1.75rem] bg-white p-6 shadow-2xl outline-none sm:max-w-xl sm:rounded-[1.75rem] sm:p-9"
+            className="relative max-h-[90vh] w-full overflow-y-auto rounded-t-[1.75rem] bg-white p-6 shadow-2xl outline-hidden sm:max-w-xl sm:rounded-[1.75rem] sm:p-9"
           >
             <button
               type="button"

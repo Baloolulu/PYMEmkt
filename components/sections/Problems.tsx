@@ -22,7 +22,7 @@ function ProblemCard({ p, index, onOpen }: { p: Problem; index: number; onOpen: 
         e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
         e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
       }}
-      className="group relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-ink/[0.08] bg-white p-6 text-left transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-electric/30 hover:shadow-[0_24px_60px_-30px_rgba(37,99,235,0.45)] sm:p-7"
+      className="group relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-ink/8 bg-white p-6 text-left transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-electric/30 hover:shadow-[0_24px_60px_-30px_rgba(37,99,235,0.45)] sm:p-7"
     >
       <span
         aria-hidden

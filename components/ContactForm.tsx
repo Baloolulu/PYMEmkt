@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2, MessageCircle, RotateCw } from "lucide-react";
 import { CHALLENGES, CONTACT_PREFS, leadSummary, validateLead, type LeadErrors, type LeadInput } from "@/lib/lead";
 import { AREAS } from "@/lib/diagnostic";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -10,6 +11,7 @@ import { siteConfig } from "@/lib/config";
 import { track } from "@/lib/analytics";
 import { useDiagnostic } from "./DiagnosticContext";
 import { Button, buttonClass } from "./ui/Button";
+import { Turnstile } from "./Turnstile";
 
 const AREA_TO_CHALLENGE: Record<string, (typeof CHALLENGES)[number]> = {
   atraccion: "No llegan suficientes prospectos",
@@ -30,7 +32,14 @@ const empty: LeadInput = {
   website: "",
 };
 
-type Status = "idle" | "sending" | "success" | "error";
+/** idle → sending → success (entrega confirmada) | error (datos inválidos) | failed (no se pudo entregar) */
+type Status = "idle" | "sending" | "success" | "error" | "failed";
+
+const PREF_NEXT: Record<string, string> = {
+  WhatsApp: "Te escribiremos por WhatsApp al número que nos compartiste.",
+  Llamada: "Te llamaremos para acordar el día y la hora del diagnóstico. Todavía no hay una cita agendada.",
+  Videollamada: "Te contactaremos para acordar el día y la hora de la videollamada. Todavía no hay una cita agendada.",
+};
 
 function Field({
   id,
@@ -63,7 +72,7 @@ function Field({
 }
 
 const inputCls = (err?: string) =>
-  `block w-full rounded-xl border bg-white px-4 py-3 text-base text-ink sm:text-[0.95rem] placeholder:text-ink/35 transition-[border-color,box-shadow] focus:outline-none focus:ring-4 ${
+  `block w-full rounded-xl border bg-white px-4 py-3 text-base text-ink sm:text-[0.95rem] placeholder:text-ink/35 transition-[border-color,box-shadow] focus:outline-hidden focus:ring-4 ${
     err ? "border-red-400 focus:border-red-500 focus:ring-red-500/15" : "border-ink/15 focus:border-electric focus:ring-electric/15"
   }`;
 
@@ -75,17 +84,29 @@ export function ContactForm() {
   const [touched, setTouched] = useState<Partial<Record<keyof LeadInput, boolean>>>({});
   const [status, setStatus] = useState<Status>("idle");
   const [serverMsg, setServerMsg] = useState("");
-  const [delivered, setDelivered] = useState(true);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const summaryRef = useRef<HTMLDivElement>(null);
+  const failRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
+  const startedAt = useRef(0);
 
-  // Preselección según el resultado del diagnóstico o el problema elegido
   useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
+
+  // Preselección según el resultado del diagnóstico o el problema elegido.
+  // Se ajusta durante el render cuando cambia el contexto (patrón recomendado por React, sin efectos en cascada).
+  const contextKey = `${intent ?? ""}|${result?.primary ?? ""}`;
+  const [seenContext, setSeenContext] = useState(contextKey);
+  if (contextKey !== seenContext) {
+    setSeenContext(contextKey);
     let pre: string | undefined;
-    if (intent && (CHALLENGES as readonly string[]).includes(intent.replace(/\.$/, ""))) pre = intent.replace(/\.$/, "");
+    const fromIntent = intent?.replace(/\.$/, "");
+    if (fromIntent && (CHALLENGES as readonly string[]).includes(fromIntent)) pre = fromIntent;
     else if (result) pre = AREA_TO_CHALLENGE[result.primary];
     if (pre) setData((d) => ({ ...d, challenge: pre as string }));
-  }, [intent, result]);
+  }
 
   const set = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => {
     const next = { ...data, [k]: v };
@@ -120,8 +141,17 @@ export function ContactForm() {
     diagnosticArea: result ? AREAS[result.primary].label : undefined,
   });
 
+  const fail = (message: string, reason: string) => {
+    setServerMsg(message);
+    setStatus("failed");
+    track("form_delivery_failed", { reason });
+    setTurnstileReset((n) => n + 1);
+    window.setTimeout(() => failRef.current?.focus(), 30);
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === "sending") return;
     const errs = validateLead(data);
     setErrors(errs);
     setTouched({ name: true, company: true, phone: true, email: true, challenge: true, preference: true, message: true, consent: true });
@@ -132,36 +162,54 @@ export function ContactForm() {
       window.setTimeout(() => summaryRef.current?.focus(), 30);
       return;
     }
+    if (siteConfig.turnstileSiteKey && !turnstileToken) {
+      setStatus("error");
+      setServerMsg("Completa la verificación de seguridad antes de enviar.");
+      window.setTimeout(() => summaryRef.current?.focus(), 30);
+      return;
+    }
     setStatus("sending");
     setServerMsg("");
+    let res: Response;
     try {
-      const res = await fetch("/api/lead", {
+      res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload()),
+        body: JSON.stringify({
+          ...payload(),
+          turnstileToken: turnstileToken || undefined,
+          elapsedMs: startedAt.current ? Date.now() - startedAt.current : undefined,
+        }),
       });
-      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; delivered?: boolean; error?: string; errors?: LeadErrors };
-      if (!res.ok || !json.ok) {
-        if (json.errors) setErrors(json.errors);
-        setServerMsg(json.error ?? "No pudimos enviar tu solicitud. Intenta de nuevo.");
-        setStatus("error");
-        track("form_error", { reason: `http_${res.status}` });
-        window.setTimeout(() => summaryRef.current?.focus(), 30);
-        return;
-      }
-      setDelivered(json.delivered !== false);
+    } catch {
+      fail("Hubo un problema de conexión y tu solicitud no se envió.", "network");
+      return;
+    }
+    const json = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      delivered?: boolean;
+      code?: string;
+      error?: string;
+      errors?: LeadErrors;
+    };
+
+    // Éxito SOLO con entrega confirmada por el servidor.
+    if (res.ok && json.ok === true && json.delivered === true) {
       setStatus("success");
       track("form_submit", { challenge: data.challenge, preference: data.preference });
-      if (data.preference === "Videollamada" || data.preference === "Llamada") {
-        track("meeting_request", { type: data.preference });
-      }
+      track("contact_preference", { type: data.preference });
       window.setTimeout(() => successRef.current?.focus(), 60);
-    } catch {
-      setServerMsg("Hubo un problema de conexión. Revisa tu internet e intenta de nuevo.");
-      setStatus("error");
-      track("form_error", { reason: "network" });
-      window.setTimeout(() => summaryRef.current?.focus(), 30);
+      return;
     }
+    if (res.status === 422 && json.errors) {
+      setErrors(json.errors);
+      setServerMsg(json.error ?? "Revisa los campos marcados.");
+      setStatus("error");
+      track("form_error", { reason: "server_validation" });
+      window.setTimeout(() => summaryRef.current?.focus(), 30);
+      return;
+    }
+    fail(json.error ?? "No pudimos enviar tu solicitud.", json.code ?? `http_${res.status}`);
   };
 
   const wa = whatsappLink(leadSummary(payload()));
@@ -179,17 +227,11 @@ export function ContactForm() {
             role="status"
           >
             <CheckCircle2 className="h-12 w-12 text-electric" aria-hidden />
-            <h3 ref={successRef} tabIndex={-1} className="display mt-6 text-3xl leading-tight outline-none">
-              {delivered ? "Recibimos tu solicitud." : "Tu solicitud está casi lista."}
+            <h3 ref={successRef} tabIndex={-1} className="display mt-6 text-3xl leading-tight outline-hidden">
+              Recibimos tu solicitud.
             </h3>
             <p className="mt-4 max-w-md leading-relaxed text-ink/60">
-              {delivered
-                ? `Revisaremos tu información y te contactaremos por ${data.preference.toLowerCase()} para agendar el diagnóstico.`
-                : wa
-                  ? "Para asegurarnos de recibirla, envíanosla por WhatsApp. El mensaje ya está redactado."
-                  : siteConfig.contact.email
-                    ? `Para asegurarnos de recibirla, escríbenos a ${siteConfig.contact.email}.`
-                    : "Guardamos tus datos, pero el canal de envío aún no está configurado en este sitio."}
+              Revisaremos tu información antes de contactarte. {PREF_NEXT[data.preference] ?? ""}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {wa && (
@@ -198,18 +240,10 @@ export function ContactForm() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track("whatsapp_click", { location: "form_success" })}
-                  className={buttonClass(delivered ? "outline" : "primary")}
+                  className={buttonClass("outline")}
                 >
                   <MessageCircle className="h-4 w-4" aria-hidden />
-                  {delivered ? "Adelantar por WhatsApp" : "Enviar por WhatsApp"}
-                </a>
-              )}
-              {!wa && !delivered && siteConfig.contact.email && (
-                <a
-                  href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent("Solicitud de diagnóstico")}&body=${encodeURIComponent(leadSummary(payload()))}`}
-                  className={buttonClass("primary")}
-                >
-                  Enviar por correo
+                  Adelantar por WhatsApp
                 </a>
               )}
               <Button
@@ -219,6 +253,8 @@ export function ContactForm() {
                   setTouched({});
                   setErrors({});
                   setStatus("idle");
+                  startedAt.current = Date.now();
+                  setTurnstileReset((n) => n + 1);
                 }}
               >
                 Enviar otra solicitud
@@ -250,7 +286,7 @@ export function ContactForm() {
                 ref={summaryRef}
                 tabIndex={-1}
                 role="alert"
-                className="mt-5 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 outline-none"
+                className="mt-5 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 outline-hidden"
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
                 <span>
@@ -331,7 +367,7 @@ export function ContactForm() {
                     onBlur={() => blur("challenge")}
                     aria-invalid={!!visible("challenge")}
                     aria-describedby={visible("challenge") ? `${ids.challenge}-error` : undefined}
-                    className={`${inputCls(visible("challenge"))} appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%230B0F19' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E")] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}
+                    className={`${inputCls(visible("challenge"))} appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%230B0F19' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E")] bg-size-[12px] bg-position-[right_1rem_center] bg-no-repeat pr-10`}
                   >
                     <option value="" disabled>
                       Selecciona una opción
@@ -346,13 +382,16 @@ export function ContactForm() {
               </div>
 
               <fieldset className="sm:col-span-2">
-                <legend className="text-sm font-medium text-ink">¿Cómo prefieres continuar?</legend>
+                <legend className="text-sm font-medium text-ink">¿Cómo prefieres que te contactemos?</legend>
+                <p id={`${uid}-pref-help`} className="mt-1 text-xs text-ink/50">
+                  Te contactaremos para acordar fecha y hora. Elegir una opción no agenda una cita.
+                </p>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   {CONTACT_PREFS.map((p) => (
                     <label
                       key={p}
-                      className={`flex cursor-pointer items-center justify-center rounded-xl border px-2 py-2.5 text-sm transition-colors has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-electric/20 ${
-                        data.preference === p ? "border-electric bg-electric/[0.06] font-medium text-electric" : "border-ink/15 text-ink/70 hover:border-ink/35"
+                      className={`flex cursor-pointer items-center justify-center rounded-xl border px-2 py-2.5 text-sm transition-colors has-focus-visible:ring-4 has-focus-visible:ring-electric/20 ${
+                        data.preference === p ? "border-electric bg-electric/6 font-medium text-electric" : "border-ink/15 text-ink/70 hover:border-ink/35"
                       }`}
                     >
                       <input
@@ -361,6 +400,7 @@ export function ContactForm() {
                         value={p}
                         checked={data.preference === p}
                         onChange={() => set("preference", p)}
+                        aria-describedby={`${uid}-pref-help`}
                         className="sr-only"
                       />
                       {p}
@@ -391,7 +431,7 @@ export function ContactForm() {
               <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
                 <label>
                   No llenar
-                  <input tabIndex={-1} autoComplete="off" value={data.website} onChange={(e) => set("website", e.target.value)} />
+                  <input name="website" tabIndex={-1} autoComplete="off" value={data.website} onChange={(e) => set("website", e.target.value)} />
                 </label>
               </div>
 
@@ -407,9 +447,15 @@ export function ContactForm() {
                     }}
                     aria-invalid={!!visible("consent")}
                     aria-describedby={visible("consent") ? `${ids.consent}-error` : undefined}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-ink/30 accent-electric"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded-sm border-ink/30 accent-electric"
                   />
-                  Autorizo a PYMEmkt a contactarme para dar seguimiento a esta solicitud.
+                  <span>
+                    He leído el{" "}
+                    <Link href="/aviso-de-privacidad" target="_blank" className="font-medium text-electric underline underline-offset-2">
+                      Aviso de privacidad
+                    </Link>{" "}
+                    y autorizo a PYMEmkt a contactarme para dar seguimiento a esta solicitud.
+                  </span>
                 </label>
                 {visible("consent") && (
                   <p id={`${ids.consent}-error`} className="mt-1.5 flex items-center gap-1.5 text-[0.8rem] text-red-600">
@@ -420,7 +466,53 @@ export function ContactForm() {
               </div>
             </div>
 
-            <Button type="submit" variant="primary" size="lg" disabled={status === "sending"} className="mt-7 w-full">
+            {siteConfig.turnstileSiteKey && (
+              <div className="mt-6">
+                <Turnstile siteKey={siteConfig.turnstileSiteKey} onToken={setTurnstileToken} resetSignal={turnstileReset} />
+              </div>
+            )}
+
+            {status === "failed" && (
+              <div
+                ref={failRef}
+                tabIndex={-1}
+                role="alert"
+                className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-950 outline-hidden"
+              >
+                <p className="flex items-start gap-2 font-medium">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  {serverMsg || "No pudimos enviar tu solicitud."} No se registró ningún envío.
+                </p>
+                <p className="mt-2 leading-relaxed text-amber-900/80">
+                  Tus datos siguen en el formulario.{" "}
+                  {wa
+                    ? "Envíalos ahora por WhatsApp (el mensaje ya incluye tu información) o vuelve a intentarlo."
+                    : siteConfig.contact.email
+                      ? `Vuelve a intentarlo o escríbenos a ${siteConfig.contact.email}.`
+                      : "Vuelve a intentarlo en unos minutos."}
+                </p>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  {wa && (
+                    <a
+                      href={wa}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => track("whatsapp_click", { location: "form_fallback" })}
+                      className={buttonClass("primary")}
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden />
+                      Enviar por WhatsApp
+                    </a>
+                  )}
+                  <Button type="submit" variant="outline">
+                    <RotateCw className="h-4 w-4" aria-hidden />
+                    Intentar de nuevo
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <Button type="submit" variant="primary" size="lg" disabled={status === "sending"} className={`mt-7 w-full ${status === "failed" ? "hidden!" : ""}`}>
               {status === "sending" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

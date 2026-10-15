@@ -28,13 +28,13 @@ function FunnelVisual() {
   const max = DEMO_FUNNEL[0].value;
   return (
     <div>
-      <p className="display text-xl leading-snug text-ink sm:text-2xl">{DEMO_COMPANY.symptom}</p>
+      <p className="display text-xl leading-snug text-ink sm:text-2xl sm:leading-8">{DEMO_COMPANY.symptom}</p>
       <p className={`${label} mt-6`}>Línea base semanal · ficticia</p>
       <div className="mt-3 space-y-2.5">
         {DEMO_FUNNEL.map((f, i) => (
           <div key={f.label} className="grid grid-cols-[minmax(0,9.5rem)_1fr] items-center gap-3 sm:grid-cols-[11rem_1fr]">
             <span className="text-sm text-ink/70">{f.label}</span>
-            <span className="relative h-8 overflow-hidden rounded-lg bg-ink/[0.04]">
+            <span className="relative h-8 overflow-hidden rounded-lg bg-ink/4">
               <motion.span
                 className={`absolute inset-y-0 left-0 rounded-lg ${i === DEMO_FUNNEL.length - 1 ? "bg-electric" : "bg-electric/25"}`}
                 initial={{ width: 0 }}
@@ -50,7 +50,7 @@ function FunnelVisual() {
       </div>
       <dl className="mt-5 grid grid-cols-2 gap-3">
         {DEMO_BASELINE_FACTS.map((f) => (
-          <div key={f.label} className="rounded-xl border border-ink/[0.08] bg-white p-3">
+          <div key={f.label} className="rounded-xl border border-ink/8 bg-white p-3">
             <dt className="text-xs text-ink/50">{f.label}</dt>
             <dd className="mt-1 font-medium text-ink">{f.value}</dd>
           </div>
@@ -76,12 +76,12 @@ function CausesVisual() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08 * i, ease }}
-            className={`rounded-xl border p-3.5 ${c.root ? "border-electric/40 bg-electric/[0.06]" : "border-ink/[0.08] bg-white"}`}
+            className={`rounded-xl border p-3.5 ${c.root ? "border-electric/40 bg-electric/6" : "border-ink/8 bg-white"}`}
           >
             <span className="flex items-start justify-between gap-2">
               <span className="text-[0.92rem] font-medium text-ink">{c.title}</span>
               {c.root && (
-                <span className="shrink-0 rounded-full bg-electric px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-[0.1em] text-white">
+                <span className="shrink-0 rounded-full bg-electric px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-white">
                   Causa raíz
                 </span>
               )}
@@ -100,10 +100,10 @@ function PriorityVisual() {
       <figure aria-label="Matriz de impacto y esfuerzo con cinco acciones del caso ficticio">
         <div className="relative ml-6 aspect-square w-[calc(100%-1.5rem)] max-w-[320px] rounded-xl border border-ink/10 bg-white">
           <div aria-hidden className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-            <span className="flex items-start p-2 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-electric bg-electric/[0.06] rounded-tl-xl">Hacer primero</span>
-            <span className="flex items-start justify-end border-l border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-ink/40">Planear</span>
-            <span className="flex items-end border-t border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-ink/40">Si sobra tiempo</span>
-            <span className="flex items-end justify-end border-l border-t border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-ink/40">Descartar por ahora</span>
+            <span className="flex items-start p-2 font-mono text-[0.55rem] uppercase tracking-widest text-electric bg-electric/6 rounded-tl-xl">Hacer primero</span>
+            <span className="flex items-start justify-end border-l border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-widest text-ink/40">Planear</span>
+            <span className="flex items-end border-t border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-widest text-ink/40">Si sobra tiempo</span>
+            <span className="flex items-end justify-end border-l border-t border-ink/10 p-2 font-mono text-[0.55rem] uppercase tracking-widest text-ink/40">Descartar por ahora</span>
           </div>
           {DEMO_ACTIONS.map((a, i) => (
             <motion.span
@@ -111,7 +111,7 @@ function PriorityVisual() {
               initial={{ opacity: 0, scale: 0.6 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.35, delay: 0.08 * i, ease }}
-              className={`absolute grid h-8 w-8 place-items-center rounded-full font-mono text-xs font-semibold shadow-sm ${
+              className={`absolute grid h-8 w-8 place-items-center rounded-full font-mono text-xs font-semibold shadow-xs ${
                 a.impact >= 60 && a.effort < 50 ? "bg-electric text-white" : "border border-ink/15 bg-white text-ink"
               }`}
               style={{ left: `calc(${a.effort}% - 1rem)`, top: `calc(${100 - a.impact}% - 1rem)` }}
@@ -162,19 +162,19 @@ function SprintVisual() {
           {DEMO_SPRINT.map((t, i) => (
             <li key={t.task} className="grid grid-cols-[minmax(0,8.5rem)_1fr] items-center gap-3 sm:grid-cols-[13rem_1fr]">
               <span className="min-w-0">
-                <span className="block text-[0.82rem] leading-tight text-ink sm:text-sm">{t.task}</span>
+                <span className="block text-[0.82rem] leading-tight text-ink sm:text-sm sm:leading-5">{t.task}</span>
                 <span className="block text-[0.7rem] text-ink/45">{t.owner}</span>
               </span>
               <span className="relative grid h-7 grid-cols-10 rounded-md bg-ink/[0.035]">
                 {days.slice(1).map((d) => (
-                  <span key={d} aria-hidden className="absolute inset-y-0 border-l border-ink/[0.06]" style={{ left: `${(d - 1) * 10}%` }} />
+                  <span key={d} aria-hidden className="absolute inset-y-0 border-l border-ink/6" style={{ left: `${(d - 1) * 10}%` }} />
                 ))}
                 <span
                   className="absolute inset-y-1 px-0.5"
                   style={{ left: `${(t.from - 1) * 10}%`, width: `${(t.to - t.from + 1) * 10}%` }}
                 >
                   <motion.span
-                    className="block h-full rounded bg-electric"
+                    className="block h-full rounded-sm bg-electric"
                     style={{ originX: 0 }}
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
@@ -207,12 +207,12 @@ function MeasureVisual() {
         <tbody>
           {DEMO_INDICATORS.map((r) => (
             <tr key={r.name}>
-              <th scope="row" className="border-b border-ink/[0.06] py-3 pr-3 font-medium text-ink">
+              <th scope="row" className="border-b border-ink/6 py-3 pr-3 font-medium text-ink">
                 {r.name}
               </th>
-              <td className="border-b border-ink/[0.06] py-3 pr-3 tabular-nums text-ink/60">{r.baseline}</td>
-              <td className="border-b border-ink/[0.06] py-3 pr-3 font-medium text-electric">{r.target}</td>
-              <td className="hidden border-b border-ink/[0.06] py-3 text-ink/60 sm:table-cell">{r.cadence}</td>
+              <td className="border-b border-ink/6 py-3 pr-3 tabular-nums text-ink/60">{r.baseline}</td>
+              <td className="border-b border-ink/6 py-3 pr-3 font-medium text-electric">{r.target}</td>
+              <td className="hidden border-b border-ink/6 py-3 text-ink/60 sm:table-cell">{r.cadence}</td>
             </tr>
           ))}
         </tbody>
@@ -231,7 +231,7 @@ function OptimizeVisual({ onRestart }: { onRestart: () => void }) {
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.08 * i, ease }}
-            className="grid gap-1 rounded-xl border border-ink/[0.08] bg-white p-3.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-3"
+            className="grid gap-1 rounded-xl border border-ink/8 bg-white p-3.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-3"
           >
             <span className="text-sm text-ink/70">
               <span className="font-mono text-[0.6rem] uppercase tracking-[0.12em] text-ink/40">Si </span>
@@ -334,9 +334,9 @@ export function A3Demo({ active, onSelect }: { active: number; onSelect: (i: num
         </p>
       </div>
 
-      <div ref={sheet} className="mt-8 overflow-hidden rounded-[1.75rem] border border-ink/[0.1] bg-mist/80 shadow-[0_30px_80px_-50px_rgba(11,15,25,0.35)]">
+      <div ref={sheet} className="mt-8 overflow-hidden rounded-[1.75rem] border border-ink/10 bg-mist/80 shadow-[0_30px_80px_-50px_rgba(11,15,25,0.35)]">
         {/* encabezado de la hoja */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/[0.08] bg-white px-5 py-3.5 sm:px-7">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/8 bg-white px-5 py-3.5 sm:px-7">
           <span className="font-medium text-ink">
             Hoja A3 · {DEMO_COMPANY.name}
             <span className="block text-sm font-normal text-ink/45 sm:ml-2 sm:inline">{DEMO_COMPANY.profile}</span>
@@ -350,7 +350,7 @@ export function A3Demo({ active, onSelect }: { active: number; onSelect: (i: num
           role="tablist"
           aria-label="Etapas de la demostración"
           onKeyDown={onKey}
-          className="flex snap-x gap-1.5 overflow-x-auto border-b border-ink/[0.08] bg-white/60 px-3 py-2.5 [scrollbar-width:none] sm:px-5"
+          className="flex snap-x gap-1.5 overflow-x-auto border-b border-ink/8 bg-white/60 px-3 py-2.5 [scrollbar-width:none] sm:px-5"
         >
           {STAGES.map((s, i) => {
             const on = i === active;
@@ -371,8 +371,8 @@ export function A3Demo({ active, onSelect }: { active: number; onSelect: (i: num
                   on
                     ? "bg-ink text-white"
                     : i < active
-                      ? "text-electric hover:bg-electric/[0.06]"
-                      : "text-ink/55 hover:bg-ink/[0.05] hover:text-ink"
+                      ? "text-electric hover:bg-electric/6"
+                      : "text-ink/55 hover:bg-ink/5 hover:text-ink"
                 }`}
               >
                 <span className="font-mono text-[0.68rem]">{s.index}</span>
@@ -393,7 +393,7 @@ export function A3Demo({ active, onSelect }: { active: number; onSelect: (i: num
               className="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:gap-12"
             >
               <div className="min-w-0">{visuals[active]}</div>
-              <aside className="min-w-0 lg:border-l lg:border-ink/[0.08] lg:pl-10">
+              <aside className="min-w-0 lg:border-l lg:border-ink/8 lg:pl-10">
                 <p className={label}>Etapa {stage.index} · {stage.title}</p>
                 <p className="display mt-3 text-2xl leading-tight text-ink">{note.question}</p>
                 <p className="mt-3 leading-relaxed text-ink/65">{note.focus}</p>
@@ -404,7 +404,7 @@ export function A3Demo({ active, onSelect }: { active: number; onSelect: (i: num
         </div>
 
         {/* navegación */}
-        <div className="flex items-center justify-between gap-3 border-t border-ink/[0.08] bg-white px-4 py-4 sm:px-8">
+        <div className="flex items-center justify-between gap-3 border-t border-ink/8 bg-white px-4 py-4 sm:px-8">
           <button
             type="button"
             onClick={() => go(Math.max(active - 1, 0), "prev")}

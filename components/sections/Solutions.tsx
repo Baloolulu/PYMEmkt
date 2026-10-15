@@ -105,7 +105,7 @@ export function Solutions() {
               <div className="absolute left-1/2 top-1/2 grid h-[30%] w-[30%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-ink-800 text-center shadow-[0_0_80px_-10px_rgba(37,99,235,0.6)]">
                 <span className="px-2">
                   <span className="block font-mono text-[0.55rem] uppercase tracking-[0.18em] text-white/40 sm:text-[0.6rem]">Tu</span>
-                  <span className="block text-[0.72rem] font-medium leading-tight sm:text-sm">sistema comercial</span>
+                  <span className="block text-[0.72rem] font-medium leading-tight sm:text-sm sm:leading-5">sistema comercial</span>
                 </span>
               </div>
 
@@ -135,7 +135,7 @@ export function Solutions() {
                     >
                       <span
                         className={`grid h-9 w-9 place-items-center rounded-xl transition-colors ${
-                          on ? "bg-electric text-white" : "bg-white/[0.06] text-electric-300"
+                          on ? "bg-electric text-white" : "bg-white/6 text-electric-300"
                         }`}
                       >
                         <Icon className="h-4 w-4" aria-hidden />
@@ -161,7 +161,7 @@ export function Solutions() {
                 transition={{ duration: 0.35, ease }}
               >
                 <p className="eyebrow text-electric-400">{cat.label}</p>
-                <h3 className="display mt-3 text-3xl leading-tight sm:text-4xl">{cat.question}</h3>
+                <h3 className="display mt-3 text-3xl leading-tight sm:text-4xl sm:leading-10">{cat.question}</h3>
                 <p className="text-pretty mt-3 max-w-xl leading-relaxed text-white/60">{cat.summary}</p>
 
                 <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -171,7 +171,7 @@ export function Solutions() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: 0.06 * i + 0.1, ease }}
-                      className="group rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+                      className="group rounded-2xl border border-white/8 bg-white/3 p-5 transition-colors hover:border-white/20 hover:bg-white/5"
                     >
                       <span className="flex items-center justify-between">
                         <span className="font-medium text-white">{item.name}</span>

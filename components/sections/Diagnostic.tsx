@@ -129,7 +129,7 @@ export function Diagnostic() {
 
   return (
     <section id="diagnostico" aria-labelledby="diagnostico-title" className="noise relative isolate overflow-hidden bg-ink py-24 text-white sm:py-32">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-grid opacity-60 [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_70%_50%,black,transparent_70%)]" />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-grid opacity-60 bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_70%_50%,black,transparent_70%)]" />
       <div aria-hidden className="absolute right-[-10%] top-1/3 -z-10 hidden h-[520px] w-[520px] rounded-full bg-electric/20 blur-[120px] sm:block" />
 
       <div className="container grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
@@ -148,7 +148,7 @@ export function Diagnostic() {
               { Icon: Clock, t: "Aprox. 1 minuto", d: "Sin registro previo" },
               { Icon: ShieldCheck, t: "Orientativa", d: "No es un diagnóstico final" },
             ].map(({ Icon, t, d }) => (
-              <div key={t} className="flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+              <div key={t} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/3 p-4">
                 <Icon className="h-5 w-5 shrink-0 text-electric-400" aria-hidden />
                 <div>
                   <p className="text-sm font-medium text-white">{t}</p>
@@ -162,7 +162,7 @@ export function Diagnostic() {
         <Reveal delay={0.05}>
           <div ref={cardRef} className="glass relative overflow-hidden rounded-[1.75rem] shadow-[0_40px_120px_-50px_rgba(37,99,235,0.6)]">
             {/* progreso */}
-            <div className="border-b border-white/[0.08] px-5 py-4 sm:px-8">
+            <div className="border-b border-white/8 px-5 py-4 sm:px-8">
               <div className="flex items-center justify-between font-mono text-[0.68rem] uppercase tracking-[0.16em] text-white/45">
                 <span aria-live="polite">
                   {phase === "intro" && "Listo para comenzar"}
@@ -172,7 +172,7 @@ export function Diagnostic() {
                 <span>{Math.round(progress)}%</span>
               </div>
               <div
-                className="mt-3 h-1 overflow-hidden rounded-full bg-white/[0.08]"
+                className="mt-3 h-1 overflow-hidden rounded-full bg-white/8"
                 role="progressbar"
                 aria-label="Avance de la evaluación"
                 aria-valuemin={0}
@@ -180,7 +180,7 @@ export function Diagnostic() {
                 aria-valuenow={Math.round(progress)}
               >
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-electric to-electric-400"
+                  className="h-full rounded-full bg-linear-to-r from-electric to-electric-400"
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.5, ease }}
                 />
@@ -200,7 +200,7 @@ export function Diagnostic() {
                     transition={{ duration: 0.35, ease }}
                     className="flex h-full flex-col"
                   >
-                    <h3 ref={headingRef} tabIndex={-1} className="display text-3xl leading-tight outline-none sm:text-4xl">
+                    <h3 ref={headingRef} tabIndex={-1} className="display text-3xl leading-tight outline-hidden sm:text-4xl sm:leading-10">
                       ¿Qué está frenando tu crecimiento?
                     </h3>
                     <p className="text-pretty mt-4 max-w-md leading-relaxed text-white/60">
@@ -209,7 +209,7 @@ export function Diagnostic() {
                     </p>
                     <ul className="mt-8 grid grid-cols-2 gap-3">
                       {AREA_KEYS.map((a, i) => (
-                        <li key={a} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+                        <li key={a} className="rounded-2xl border border-white/8 bg-white/3 p-4">
                           <span className="font-mono text-[0.62rem] text-white/35">0{i + 1}</span>
                           <p className="mt-1 font-mono text-[0.78rem] font-medium tracking-[0.14em] text-white">
                             {AREAS[a].short}
@@ -257,7 +257,7 @@ export function Diagnostic() {
                     exit="exit"
                     transition={{ duration: 0.35, ease }}
                   >
-                    <h3 id="q-title" ref={headingRef} tabIndex={-1} className="display text-[1.7rem] leading-tight outline-none sm:text-[2.1rem]">
+                    <h3 id="q-title" ref={headingRef} tabIndex={-1} className="display text-[1.7rem] leading-tight outline-hidden sm:text-[2.1rem]">
                       {q.title}
                     </h3>
                     <p className="mt-3 text-sm text-white/45">{q.helper}</p>
@@ -271,10 +271,10 @@ export function Diagnostic() {
                             type="button"
                             aria-pressed={sel}
                             onClick={() => choose(o.id)}
-                            className={`group flex min-h-[3.5rem] w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition-all duration-200 sm:px-5 ${
+                            className={`group flex min-h-14 w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition-all duration-200 sm:px-5 ${
                               sel
                                 ? "border-electric-400 bg-electric/20 text-white"
-                                : "border-white/[0.1] bg-white/[0.025] text-white/85 hover:border-white/25 hover:bg-white/[0.06]"
+                                : "border-white/10 bg-white/2.5 text-white/85 hover:border-white/25 hover:bg-white/6"
                             }`}
                           >
                             <span
@@ -327,7 +327,7 @@ export function Diagnostic() {
                     <h3
                       ref={headingRef}
                       tabIndex={-1}
-                      className="display text-gradient mt-2 text-5xl leading-none outline-none sm:text-6xl"
+                      className="display text-gradient mt-2 text-5xl leading-none outline-hidden sm:text-6xl sm:leading-none"
                     >
                       {AREAS[result.primary].label}
                     </h3>
@@ -336,7 +336,7 @@ export function Diagnostic() {
                         Seguida de <span className="text-white">{AREAS[result.secondary].label.toLowerCase()}</span>.
                       </p>
                     )}
-                    <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[0.08] px-3 py-1.5 text-xs text-amber-100/90">
+                    <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/8 px-3 py-1.5 text-xs text-amber-100/90">
                       <Info className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       Evaluación preliminar, no un diagnóstico definitivo
                     </p>
@@ -350,7 +350,7 @@ export function Diagnostic() {
                           </span>
                           <span className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
                             <motion.span
-                              className={`block h-full rounded-full ${a === result.primary ? "bg-gradient-to-r from-electric to-electric-400" : "bg-white/25"}`}
+                              className={`block h-full rounded-full ${a === result.primary ? "bg-linear-to-r from-electric to-electric-400" : "bg-white/25"}`}
                               initial={{ width: 0 }}
                               animate={{ width: `${result.distribution[a]}%` }}
                               transition={{ duration: 0.9, delay: 0.15 + i * 0.08, ease }}
@@ -372,7 +372,7 @@ export function Diagnostic() {
                           {result.reasons.map((r) => (
                             <li
                               key={r.question}
-                              className="flex flex-col gap-0.5 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                              className="flex flex-col gap-0.5 rounded-xl border border-white/8 bg-white/2.5 px-4 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
                             >
                               <span className="font-mono text-[0.64rem] uppercase tracking-[0.12em] text-white/45">{r.question}</span>
                               <span className="text-[0.92rem] text-white">{r.answer}</span>
@@ -392,7 +392,7 @@ export function Diagnostic() {
                       )}
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+                    <div className="mt-6 rounded-2xl border border-white/8 bg-white/3 p-5">
                       <p className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-white/40">Qué revisaríamos primero</p>
                       <ul className="mt-3 space-y-1.5">
                         {AREAS[result.primary].focus.map((f) => (

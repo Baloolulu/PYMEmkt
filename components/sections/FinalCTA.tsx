@@ -18,7 +18,7 @@ export function FinalCTA() {
 
   return (
     <section id="contacto" aria-labelledby="contacto-title" className="noise relative isolate overflow-hidden bg-ink py-24 text-white sm:py-32">
-      <div aria-hidden className="grid-mask absolute inset-0 -z-10 bg-grid [background-size:56px_56px]" />
+      <div aria-hidden className="grid-mask absolute inset-0 -z-10 bg-grid bg-size-[56px_56px]" />
       <div aria-hidden className="absolute -bottom-60 left-1/2 -z-10 h-[700px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(37,99,235,0.35),transparent)]" />
 
       <div className="container">
@@ -28,7 +28,7 @@ export function FinalCTA() {
             <span aria-hidden className="h-px w-6 bg-white/25" />
             Siguiente paso
           </p>
-          <h2 id="contacto-title" className="display mt-6 text-[2.4rem] leading-[1.02] sm:text-6xl lg:text-[4.4rem]">
+          <h2 id="contacto-title" className="display mt-6 text-[2.4rem] leading-[1.02] sm:text-6xl lg:text-[4.4rem] sm:leading-none">
             Tu empresa puede seguir improvisando.{" "}
             <span className="text-gradient">O puede empezar a crecer con dirección.</span>
           </h2>
@@ -40,9 +40,9 @@ export function FinalCTA() {
               Descubramos qué está frenando tu crecimiento y qué acciones podrían generar mayor impacto.
             </p>
 
-            <ol className="mt-10 space-y-px overflow-hidden rounded-2xl border border-white/[0.08]">
+            <ol className="mt-10 space-y-px overflow-hidden rounded-2xl border border-white/8">
               {NEXT.map((s) => (
-                <li key={s.n} className="flex gap-5 bg-white/[0.025] p-5">
+                <li key={s.n} className="flex gap-5 bg-white/2.5 p-5">
                   <span className="font-mono text-sm text-electric-400">{s.n}</span>
                   <span>
                     <span className="block font-medium">{s.t}</span>

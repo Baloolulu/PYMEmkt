@@ -55,6 +55,8 @@ export function validateLead(d: LeadInput): LeadErrors {
   if (!(CONTACT_PREFS as readonly string[]).includes(d.preference)) e.preference = "Elige cómo prefieres continuar.";
 
   if (d.message && d.message.length > 600) e.message = "Máximo 600 caracteres.";
+  else if (d.message && /https?:\/\/|www\./i.test(d.message) && (d.message.match(/https?:\/\//gi)?.length ?? 0) > 2)
+    e.message = "Incluye máximo dos enlaces.";
 
   if (!d.consent) e.consent = "Necesitamos tu autorización para contactarte.";
   return e;
@@ -62,12 +64,12 @@ export function validateLead(d: LeadInput): LeadErrors {
 
 export function leadSummary(d: LeadInput) {
   return [
-    `Hola, PYMEmkt. Solicito un diagnóstico.`,
+    "Hola, PYMEmkt. Quiero solicitar un diagnóstico.",
     `Nombre: ${d.name}`,
     `Empresa: ${d.company}`,
     `Desafío: ${d.challenge}`,
     d.diagnosticArea ? `Resultado de la evaluación: ${d.diagnosticArea}` : null,
-    `Prefiero continuar por: ${d.preference}`,
+    `Prefiero que me contacten por: ${d.preference}`,
     d.message ? `Comentario: ${d.message}` : null,
   ]
     .filter(Boolean)

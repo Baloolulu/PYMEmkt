@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/lib/useMotionPreference";
 import { FileText, MessagesSquare, Radar, Repeat2, UserCheck } from "lucide-react";
 
 const W = 400;
@@ -33,10 +34,8 @@ const SIGNALS = [
 ];
 
 export function SystemDiagram() {
-  // Se lee después de montar para que el HTML del servidor y del cliente coincidan.
-  const prefersReduced = useReducedMotion();
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => setReduce(Boolean(prefersReduced)), [prefersReduced]);
+  // Hidratación segura: en el servidor vale false y en el cliente lee la preferencia real.
+  const reduce = usePrefersReducedMotion();
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -55,11 +54,11 @@ export function SystemDiagram() {
 
       <div className="glass noise relative overflow-hidden rounded-[1.75rem] shadow-[0_40px_120px_-40px_rgba(37,99,235,0.55)]">
         {/* barra superior */}
-        <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-3.5">
+        <div className="flex items-center justify-between border-b border-white/8 px-5 py-3.5">
           <span className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-white/45">
             sistema_comercial
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.08] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-emerald-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-emerald-300">
             <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-emerald-400" />
             conectado
           </span>
@@ -178,7 +177,7 @@ export function SystemDiagram() {
                   >
                     <span
                       className={`grid h-7 w-7 place-items-center rounded-xl transition-colors duration-500 sm:h-8 sm:w-8 ${
-                        on ? "bg-electric text-white" : "bg-white/[0.06] text-electric-300"
+                        on ? "bg-electric text-white" : "bg-white/6 text-electric-300"
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
@@ -187,7 +186,7 @@ export function SystemDiagram() {
                       <span className="whitespace-nowrap text-[0.74rem] font-medium leading-tight text-white sm:text-[0.86rem]">
                         {n.label}
                       </span>
-                      <span className="whitespace-nowrap font-mono text-[0.56rem] uppercase tracking-[0.1em] text-white/40 sm:text-[0.6rem]">
+                      <span className="whitespace-nowrap font-mono text-[0.56rem] uppercase tracking-widest text-white/40 sm:text-[0.6rem]">
                         {n.status}
                       </span>
                     </span>

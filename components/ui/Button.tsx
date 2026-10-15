@@ -9,7 +9,7 @@ const base =
 const variants: Record<Variant, string> = {
   primary:
     "bg-electric text-white shadow-[0_0_0_1px_rgba(255,255,255,0.12)_inset,0_10px_30px_-10px_rgba(37,99,235,0.8)] hover:bg-[#1d4fd8] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.18)_inset,0_14px_40px_-10px_rgba(37,99,235,0.95)]",
-  glass: "border border-white/15 bg-white/[0.04] text-white backdrop-blur hover:border-white/30 hover:bg-white/[0.08]",
+  glass: "border border-white/15 bg-white/4 text-white backdrop-blur-sm hover:border-white/30 hover:bg-white/8",
   dark: "bg-ink text-white hover:bg-ink-700",
   outline: "border border-ink/15 bg-white text-ink hover:border-ink/40",
   light: "bg-white text-ink hover:bg-mist",
@@ -17,7 +17,7 @@ const variants: Record<Variant, string> = {
 
 const sizes: Record<Size, string> = {
   md: "h-11 px-5 text-[0.92rem]",
-  lg: "h-12 px-6 text-[0.98rem] sm:h-[3.25rem] sm:px-7",
+  lg: "h-12 px-6 text-[0.98rem] sm:h-13 sm:px-7",
 };
 
 export function buttonClass(variant: Variant = "primary", size: Size = "md", extra = "") {

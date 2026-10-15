@@ -15,7 +15,7 @@ export function Hero() {
   return (
     <section id="inicio" aria-labelledby="hero-title" className="noise relative isolate overflow-hidden bg-ink pb-20 pt-28 text-white sm:pt-32 lg:pb-28 lg:pt-40">
       {/* fondo */}
-      <div aria-hidden className="grid-mask absolute inset-0 -z-10 bg-grid [background-size:56px_56px]" />
+      <div aria-hidden className="grid-mask absolute inset-0 -z-10 bg-grid bg-size-[56px_56px]" />
       <div aria-hidden className="absolute -top-40 left-1/2 -z-10 h-[620px] w-[980px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(37,99,235,0.32),transparent)]" />
       <div aria-hidden className="absolute bottom-0 left-0 right-0 -z-10 h-px hairline" />
 
@@ -25,7 +25,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
-            className="eyebrow rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-white/70"
+            className="eyebrow rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-white/70"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-electric-400" aria-hidden />
             PYMEmkt <span className="text-white/30">|</span> Growth Systems
@@ -36,7 +36,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.08, ease }}
-            className="display mt-7 text-[2.5rem] leading-[1] sm:text-[3.4rem] lg:text-[3.7rem] xl:text-[4.3rem]"
+            className="display mt-7 text-[2.5rem] leading-none sm:text-[3.4rem] lg:text-[3.7rem] xl:text-[4.3rem]"
           >
             Tu empresa no necesita más acciones aisladas.
             <span className="text-gradient mt-4 block pb-1 text-[0.72em] leading-[1.06]">Necesita un sistema que genere oportunidades.</span>
@@ -46,7 +46,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease }}
-            className="text-pretty mt-7 max-w-xl text-lg leading-relaxed text-white/60 sm:text-xl"
+            className="text-pretty mt-7 max-w-xl text-lg leading-relaxed text-white/60 sm:text-xl sm:leading-7"
           >
             Diagnosticamos los problemas que frenan tu crecimiento y construimos estrategias comerciales para
             convertir oportunidades en resultados medibles.

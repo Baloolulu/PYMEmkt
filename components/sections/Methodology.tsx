@@ -77,7 +77,7 @@ function CycleVisual({ active, onSelect }: { active: number; onSelect: (i: numbe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.25 }}
-            className="display mt-2 max-w-[11rem] text-xl leading-tight text-ink sm:text-2xl"
+            className="display mt-2 max-w-44 text-xl leading-tight text-ink sm:text-2xl sm:leading-8"
           >
             {STAGES[active].title}
           </motion.span>
@@ -102,7 +102,7 @@ export function Methodology() {
 
   return (
     <section id="metodologia" aria-labelledby="metodologia-title" className="relative overflow-hidden bg-white py-24 sm:py-32">
-      <div aria-hidden className="absolute inset-0 bg-grid-light [background-size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_60%)]" />
+      <div aria-hidden className="absolute inset-0 bg-grid-light bg-size-[56px_56px] mask-[linear-gradient(to_bottom,black,transparent_60%)]" />
       <div className="container relative">
         <SectionHeader
           id="metodologia-title"
@@ -189,7 +189,7 @@ export function Methodology() {
           </Reveal>
 
           <Reveal delay={0.1} className="lg:sticky lg:top-28 lg:self-start">
-            <div className="rounded-[1.75rem] border border-ink/[0.08] bg-mist/70 p-6 sm:p-10">
+            <div className="rounded-[1.75rem] border border-ink/8 bg-mist/70 p-6 sm:p-10">
               <CycleVisual active={active} onSelect={select} />
               <p className="mx-auto mt-6 max-w-sm text-center text-sm leading-relaxed text-ink/55">
                 El ciclo no termina en la optimización: lo aprendido alimenta el siguiente diagnóstico.

@@ -4,9 +4,10 @@ import { siteConfig } from "./config";
  * Modo demostración (solo para vistas previas): si no hay número configurado,
  * los botones de WhatsApp abren WhatsApp con el mensaje redactado para que se
  * pueda revisar el texto, sin enviarlo a ningún número real.
- * En producción deja NEXT_PUBLIC_DEMO_MODE vacío.
+ * Nunca se activa con NEXT_PUBLIC_APP_ENV=production, y la compilación de producción falla si está en "true".
  */
-const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+const demoMode =
+  process.env.NEXT_PUBLIC_DEMO_MODE === "true" && process.env.NEXT_PUBLIC_APP_ENV !== "production";
 
 export const hasWhatsApp = Boolean(siteConfig.contact.whatsapp) || demoMode;
 export const isWhatsAppDemo = !siteConfig.contact.whatsapp && demoMode;

@@ -20,9 +20,12 @@ export const EVENTS = {
   diagnostic_complete: { meta: "CompleteRegistration" },
   diagnostic_request: { meta: "custom" },
   whatsapp_click: { meta: "Contact" },
+  /** Solo se envía cuando el servidor confirma la entrega de la solicitud. */
   form_submit: { meta: "Lead" },
   form_error: { meta: "custom" },
-  meeting_request: { meta: "Schedule" },
+  form_delivery_failed: { meta: "custom" },
+  /** Preferencia de contacto declarada (no es una cita agendada). */
+  contact_preference: { meta: "custom" },
   cta_click: { meta: "custom" },
   problem_open: { meta: "custom" },
   method_stage_open: { meta: "custom" },
@@ -42,7 +45,6 @@ export function track(event: EventName, params: Params = {}) {
       else window.fbq("track", meta, { ...params, content_name: event });
     }
     if (process.env.NODE_ENV === "development") {
-      // eslint-disable-next-line no-console
       console.debug("[analytics]", event, params);
     }
   } catch {

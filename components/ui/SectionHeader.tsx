@@ -21,7 +21,7 @@ export function SectionHeader({ eyebrow, index, title, intro, tone = "light", al
       </p>
       <h2
         id={id}
-        className={`display mt-5 text-[2.15rem] leading-[1.04] sm:text-5xl lg:text-[3.6rem] ${dark ? "text-white" : "text-ink"}`}
+        className={`display mt-5 text-[2.15rem] leading-[1.04] sm:text-5xl sm:leading-none lg:text-[3.6rem] ${dark ? "text-white" : "text-ink"}`}
       >
         {title}
       </h2>

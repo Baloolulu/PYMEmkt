@@ -5,6 +5,7 @@ import "./globals.css";
 import { siteConfig } from "@/lib/config";
 import { Analytics } from "@/components/Analytics";
 import { Providers } from "@/components/Providers";
+import { ConsentBanner } from "@/components/ConsentBanner";
 
 const title = "PYMEmkt | Growth Systems — Diagnóstico y estrategia comercial para PYMEs";
 
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
     description:
       "Tu empresa no necesita más acciones aisladas. Necesita un sistema que genere oportunidades.",
   },
-  robots: { index: true, follow: true },
+  robots: siteConfig.indexable ? { index: true, follow: true } : { index: false, follow: false },
   formatDetection: { telephone: false },
 };
 
@@ -73,18 +74,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es-MX"
       className={`${GeistSans.variable} ${GeistMono.variable}`}
-      style={
-        {
-          "--font-sans": "var(--font-geist-sans)",
-          "--font-display": "var(--font-geist-sans)",
-          "--font-mono": "var(--font-geist-mono)",
-        } as React.CSSProperties
-      }
     >
       <body>
         <a
           href="#contenido"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-ink"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-ink"
         >
           Saltar al contenido
         </a>
@@ -94,6 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <Analytics />
+        <ConsentBanner />
       </body>
     </html>
   );

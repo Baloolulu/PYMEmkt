@@ -73,11 +73,11 @@ export function Header() {
       <div
         className={`transition-[background-color,border-color,backdrop-filter] duration-300 ${
           scrolled || open
-            ? "border-b border-white/[0.08] bg-ink/80 backdrop-blur-xl"
+            ? "border-b border-white/8 bg-ink/80 backdrop-blur-xl"
             : "border-b border-transparent bg-transparent"
         }`}
       >
-        <nav aria-label="Principal" className="container flex h-16 items-center justify-between lg:h-[4.5rem]">
+        <nav aria-label="Principal" className="container flex h-16 items-center justify-between lg:h-18">
           <a href="#inicio" aria-label="PYMEmkt, ir al inicio" className="-my-2 rounded-md py-2.5">
             <Logo height={24} priority />
           </a>
@@ -89,7 +89,7 @@ export function Header() {
                   href={item.href}
                   aria-current={active === item.href ? "true" : undefined}
                   className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                    active === item.href ? "bg-white/[0.08] text-white" : "text-white/60 hover:text-white"
+                    active === item.href ? "bg-white/8 text-white" : "text-white/60 hover:text-white"
                   }`}
                 >
                   {item.label}
@@ -102,7 +102,7 @@ export function Header() {
             <a
               href="#contacto"
               onClick={() => track("cta_click", { location: "header" })}
-              className={buttonClass("primary", "md", "hidden h-10 px-4 text-sm sm:inline-flex")}
+              className={buttonClass("primary", "md", "max-sm:hidden! text-sm!")}
             >
               Solicitar diagnóstico
               <ArrowUpRight aria-hidden className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

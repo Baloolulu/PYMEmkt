@@ -45,7 +45,7 @@ const PRINCIPLES = [
 
 function CaseCard({ c }: { c: CaseStudy }) {
   return (
-    <article className="rounded-3xl border border-ink/[0.08] bg-white p-6 sm:p-9">
+    <article className="rounded-3xl border border-ink/8 bg-white p-6 sm:p-9">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="display text-2xl text-ink">{c.client}</h3>
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink/45">
@@ -82,7 +82,7 @@ function CaseCard({ c }: { c: CaseStudy }) {
           <dt className="font-mono text-[0.64rem] uppercase tracking-[0.16em] text-electric">Indicadores</dt>
           <dd className="mt-2 space-y-2">
             {c.indicators.map((i) => (
-              <div key={i.label} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink/[0.06] pb-2 text-sm">
+              <div key={i.label} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink/6 pb-2 text-sm">
                 <span className="text-ink/70">{i.label}</span>
                 <span className="font-mono text-ink">
                   {i.before ?? "—"} → {i.after ?? "—"}
@@ -134,8 +134,8 @@ export function Evidence() {
         ) : (
           <>
             <Reveal className="mt-14 lg:mt-16">
-              <div className="overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/[0.08] px-6 py-4 sm:px-8">
+              <div className="overflow-hidden rounded-[1.75rem] border border-ink/8 bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/8 px-6 py-4 sm:px-8">
                   <span className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">
                     Formato de caso · Growth A3
                   </span>
@@ -144,11 +144,11 @@ export function Evidence() {
                     Casos en documentación
                   </span>
                 </div>
-                <ol className="grid divide-y divide-ink/[0.08] md:grid-cols-5 md:divide-x md:divide-y-0">
+                <ol className="grid divide-y divide-ink/8 md:grid-cols-5 md:divide-x md:divide-y-0">
                   {ANATOMY.map(({ Icon, label, text, field }, i) => (
                     <li key={label} className="group relative p-6 transition-colors hover:bg-mist/60 sm:p-7">
                       <div className="flex items-center justify-between">
-                        <span className="grid h-10 w-10 place-items-center rounded-xl bg-electric/[0.08] text-electric transition-colors group-hover:bg-electric group-hover:text-white">
+                        <span className="grid h-10 w-10 place-items-center rounded-xl bg-electric/8 text-electric transition-colors group-hover:bg-electric group-hover:text-white">
                           <Icon className="h-[1.1rem] w-[1.1rem]" aria-hidden />
                         </span>
                         <span className="font-mono text-xs text-ink/30">0{i + 1}</span>
@@ -157,8 +157,8 @@ export function Evidence() {
                       <p className="mt-2 text-sm leading-relaxed text-ink/55">{text}</p>
                       <div className="mt-6 rounded-lg border border-dashed border-ink/15 px-3 py-2.5" aria-hidden>
                         <span className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-ink/35">{field}</span>
-                        <span className="mt-2 block h-1.5 w-3/4 rounded-full bg-ink/[0.06]" />
-                        <span className="mt-1.5 block h-1.5 w-1/2 rounded-full bg-ink/[0.06]" />
+                        <span className="mt-2 block h-1.5 w-3/4 rounded-full bg-ink/6" />
+                        <span className="mt-1.5 block h-1.5 w-1/2 rounded-full bg-ink/6" />
                       </div>
                     </li>
                   ))}
@@ -178,7 +178,7 @@ export function Evidence() {
               </div>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {PRINCIPLES.map((p) => (
-                  <li key={p} className="flex items-center rounded-2xl border border-ink/[0.08] bg-white p-5 text-[0.95rem] font-medium text-ink">
+                  <li key={p} className="flex items-center rounded-2xl border border-ink/8 bg-white p-5 text-[0.95rem] font-medium text-ink">
                     {p}
                   </li>
                 ))}

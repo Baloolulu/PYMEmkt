@@ -1,5 +1,7 @@
 import { navItems, siteConfig } from "@/lib/config";
+import Link from "next/link";
 import { Logo } from "./ui/Logo";
+import { CookiePrefsButton } from "./CookiePrefsButton";
 
 export function Footer() {
   const { email } = siteConfig.contact;
@@ -10,7 +12,7 @@ export function Footer() {
   ].filter((s): s is { label: string; href: string } => Boolean(s.href));
 
   return (
-    <footer className="border-t border-white/[0.08] bg-ink text-white">
+    <footer className="border-t border-white/8 bg-ink text-white">
       <div className="container grid gap-10 py-14 md:grid-cols-[1.3fr_1fr_1fr]">
         <div>
           <Logo variant="lockup" height={50} />
@@ -23,15 +25,15 @@ export function Footer() {
           <ul className="mt-2 text-sm">
             {navItems.map((n) => (
               <li key={n.href}>
-                <a href={n.href} className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
+                <Link href={`/${n.href}`} className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
                   {n.label}
-                </a>
+                </Link>
               </li>
             ))}
             <li>
-              <a href="#contacto" className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
+              <Link href="/#contacto" className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
                 Solicitar diagnóstico
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>
@@ -54,18 +56,23 @@ export function Footer() {
             ))}
             {!email && socials.length === 0 && (
               <li>
-                <a href="#contacto" className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
+                <Link href="/#contacto" className="inline-flex min-h-11 items-center text-white/65 transition-colors hover:text-white">
                   Formulario de diagnóstico
-                </a>
+                </Link>
               </li>
             )}
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/[0.06]">
-        <div className="container flex flex-col justify-between gap-2 pb-28 pt-6 text-xs text-white/35 sm:flex-row sm:pb-6">
+      <div className="border-t border-white/6">
+        <div className="container flex flex-col justify-between gap-1 pb-28 pt-3 text-xs text-white/45 sm:flex-row sm:items-center sm:pb-3">
           <p>© {new Date().getFullYear()} PYMEmkt. Todos los derechos reservados.</p>
-          <p>Menos improvisación. Más crecimiento.</p>
+          <div className="flex flex-wrap items-center gap-x-5">
+            <Link href="/aviso-de-privacidad" className="inline-flex min-h-11 items-center hover:text-white">
+              Aviso de privacidad
+            </Link>
+            <CookiePrefsButton className="inline-flex min-h-11 items-center hover:text-white" />
+          </div>
         </div>
       </div>
     </footer>
