@@ -1,5 +1,5 @@
 /**
- * DATOS DEL AVISO DE PRIVACIDAD — BORRADOR
+ * DATOS DEL AVISO DE PRIVACIDAD
  * ---------------------------------------------------------------
  * Los campos en `null` están PENDIENTES y deben llenarse con datos reales de PYMEmkt.
  * Mientras exista un campo pendiente:
@@ -21,18 +21,18 @@ export type PrivacyData = {
   transferencias: string | null;
   /** Plazo de conservación de las solicitudes (p. ej., "12 meses desde el último contacto"). */
   conservacion: string | null;
-  /** Fecha de última actualización, AAAA-MM-DD. */
+  /** Fecha de última actualización, tal como se muestra (p. ej., «23 de octubre de 2026»). */
   ultimaActualizacion: string | null;
 };
 
 export const PRIVACY: PrivacyData = {
-  responsable: null,
-  domicilio: null,
-  correoArco: null,
-  finalidadesSecundarias: null,
-  transferencias: null,
-  conservacion: null,
-  ultimaActualizacion: null,
+  responsable: "Alfredo Puente",
+  domicilio: "Hacienda de Narvarte 46-A, col. Prados del Rosario, alcaldía Azcapotzalco, C.P. 02410, Ciudad de México",
+  correoArco: "contacto@pymemkt.com.mx",
+  finalidadesSecundarias: "Ninguna",
+  transferencias: "Ninguna",
+  conservacion: "30 días naturales desde que recibimos tu solicitud",
+  ultimaActualizacion: "23 de octubre de 2026",
 };
 
 export const PRIVACY_LABELS: Record<keyof PrivacyData, string> = {

@@ -117,10 +117,12 @@ export default function PrivacyPage() {
               <p>
                 Finalidades secundarias: <V k="finalidadesSecundarias" />.
               </p>
-              <p>
-                Si no deseas que tus datos se usen para finalidades secundarias, escríbenos a <V k="correoArco" />. Tu negativa no
-                afecta la atención de tu solicitud.
-              </p>
+              {PRIVACY.finalidadesSecundarias?.toLowerCase() !== "ninguna" && (
+                <p>
+                  Si no deseas que tus datos se usen para finalidades secundarias, escríbenos a <V k="correoArco" />. Tu negativa no
+                  afecta la atención de tu solicitud.
+                </p>
+              )}
             </Section>
 
             <Section n="04" title="Proveedores y transferencias">
