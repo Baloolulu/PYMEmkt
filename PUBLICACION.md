@@ -2,9 +2,9 @@
 
 **Estado: lista para pruebas de publicación. Todavía NO está lista para recibir prospectos.**
 
-Para estarlo faltan tres comprobaciones con servicios reales (detalle en «Pruebas pendientes»):
+Para estarlo faltan estas comprobaciones (detalle en «Pruebas pendientes»):
 
-1. Enviar una solicitud real por el SMTP de Titan y verla llegar a contacto@pymemkt.com.mx.
+1. ✔ **Comprobado el 23 de octubre de 2026:** solicitud real enviada desde la URL de pruebas por el SMTP de Titan; llegó a la bandeja de entrada de contacto@pymemkt.com.mx (no a spam). Requirió activar «Enable Titan on Other Apps» en el buzón.
 2. Abrir los enlaces de WhatsApp en un teléfono y confirmar que llegan al número 525579270123.
 3. Completar y revisar el aviso de privacidad.
 
@@ -122,10 +122,10 @@ Probadas aquí con Chromium automatizado a 1440 px y 390 px, más 390 px con mov
 
 | Prueba | Cómo | Bloquea recibir prospectos |
 | --- | --- | --- |
-| Envío real por SMTP de Titan | Con las variables en Vercel: llenar el formulario en la URL de pruebas, o `SEND_REAL=1 BASE_URL=https://<proyecto>.vercel.app npm run test:api`. Confirmar que llega a contacto@pymemkt.com.mx y no a spam | **Sí** |
+| ✔ Envío real por SMTP de Titan (comprobado 23-oct-2026, llegó a bandeja de entrada) | Con las variables en Vercel: llenar el formulario en la URL de pruebas, o `SEND_REAL=1 BASE_URL=https://<proyecto>.vercel.app npm run test:api`. Confirmar que llega a contacto@pymemkt.com.mx y no a spam | **Sí** |
 | WhatsApp en teléfono real | Desde un celular, tocar cada botón y confirmar que abre el chat de 525579270123 con el mensaje | **Sí** |
 | Aviso de privacidad | Completar `lib/privacy.ts` y revisarlo legalmente | **Sí** (producción no compila sin él) |
-| Despliegue en Vercel con Node 24 | Primer despliegue de pruebas | Sí |
+| ✔ Despliegue en Vercel con Node 24 | Desplegado en https://pym-emkt.vercel.app (sin dominio propio) | Hecho |
 | Safari en iPhone y Chrome en Android | Recorrido completo en dispositivos reales (aquí solo se emuló con Chromium) | Recomendado |
 | Límite distribuido y regla de Firewall | Tras configurar Upstash y la regla, enviar 6 solicitudes seguidas | Recomendado |
 | GA4 y Meta Pixel | Con los IDs: aceptar cookies y ver los eventos en GA4 Tiempo real y en el Administrador de eventos de Meta | No |
