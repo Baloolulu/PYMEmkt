@@ -31,6 +31,12 @@ function resolveSiteUrl(): string {
   if (explicit) return explicit;
   if (isProduction) return PRODUCTION_URL;
   // En Vercel estas variables se exponen automáticamente para Next.js.
+  // En el entorno "production" de Vercel se usa el dominio estable del proyecto (p. ej. pym-emkt.vercel.app);
+  // en vistas previas, la URL de la rama.
+  const vercelEnv = clean(process.env.NEXT_PUBLIC_VERCEL_ENV) ?? clean(process.env.VERCEL_ENV);
+  const projectUrl =
+    clean(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ?? clean(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  if (vercelEnv === "production" && projectUrl) return `https://${projectUrl}`;
   const vercel =
     clean(process.env.NEXT_PUBLIC_VERCEL_BRANCH_URL) ??
     clean(process.env.NEXT_PUBLIC_VERCEL_URL) ??
